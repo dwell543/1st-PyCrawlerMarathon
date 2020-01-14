@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import re #正規表達式
+import re
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 # urlparse模組使用者將url解析為6個元件，並以元組形式返回，返回的6個部分，分別是：scheme(協議)、netloc(網路位置)、path(路徑)、params(路徑段引數)、query(查詢)、fragment(片段)。
@@ -11,12 +11,12 @@ class PttcrawlerSpider(scrapy.Spider):
     name = 'PTTCrawler'
     allowed_domains = ['www.ptt.cc']
     start_urls = ['https://www.ptt.cc/bbs/Gossiping/M.1578657346.A.51D.html']
-    cookies = {'over18':'1'}
+    cookies = {'over18': '1'}
 
-    def start_requesets(self):
-    	for url in self.start_urls:
+    def start_requests(self):
+        for url in self.start_urls:
     		# https://www.jianshu.com/p/461d74641e80
-    		yield scrapy.Request(url=url, callback=self.parse, cookies=self.cookies)
+            yield scrapy.Request(url=url, callback=self.parse, cookies=self.cookies)
     		
     def parse(self, response):
         # 假設網頁回應不是 200 OK 的話, 我們視為傳送請求失敗
@@ -29,7 +29,7 @@ class PttcrawlerSpider(scrapy.Spider):
 
         # 取得文章內容主體
         main_content = soup.find(id='main-content')
-
+        
         # 假如文章有屬性資料 (meta), 我們在從屬性的區塊中爬出作者 (author), 文章標題 (title), 發文日期 (date)
         metas = main_content.select('div.article-metaline')
         author = ''
