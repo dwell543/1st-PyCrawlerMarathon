@@ -2,22 +2,11 @@
 import scrapy
 import re
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-# urlparse模組使用者將url解析為6個元件，並以元組形式返回，返回的6個部分，分別是：scheme(協議)、netloc(網路位置)、path(路徑)、params(路徑段引數)、query(查詢)、fragment(片段)。
+from urllib.parse import urljoin, urlparse
 from pprint import pprint
-#hw28
+from pathlib import Path
 from ..items import PTTArticleItem
 
-'''
-# 範例目標網址 https://www.ptt.cc/bbs/Gossiping/M.1578657346.A.51D.html
-class PttcrawlerSpider(scrapy.Spider):
-    name = 'PTTCrawler'
-    allowed_domains = ['www.ptt.cc']
-    start_urls = []
-    cookies = {'over18': '1'}
-    self.filename = filename
-'''
-# HW28
 class PttcrawlerSpider(scrapy.Spider):
     name = 'PTTCrawler'
     def __init__(self, start_urls, filename=None):
@@ -28,7 +17,6 @@ class PttcrawlerSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
-    		# https://www.jianshu.com/p/461d74641e80
             yield scrapy.Request(url=url, callback=self.parse, cookies=self.cookies)
 
     def parse(self, response):
@@ -40,6 +28,7 @@ class PttcrawlerSpider(scrapy.Spider):
         # 將網頁回應的 HTML 傳入 BeautifulSoup 解析器, 方便我們根據標籤 (tag) 資訊去過濾尋找
         soup = BeautifulSoup(response.text)
 
+        
         # 取得文章內容主體
         main_content = soup.find(id='main-content')
         
@@ -138,21 +127,8 @@ class PttcrawlerSpider(scrapy.Spider):
         # count 為推噓文相抵看這篇文章推文還是噓文比較多
         # all 為總共留言數量 
         message_count = {'all': p+b+n, 'count': p-b, 'push': p, 'boo': b, 'neutral': n}
-
-        # 整理文章資訊       
-        '''
-        data = {
-            'url': response.url,
-            'article_author': author,
-            'article_title': title,
-            'article_date': date,
-            'article_content': content,
-            'ip': ip,
-            'message_count': message_count,
-            'messages': messages
-        }        
-        '''
-        # HW27-28
+        
+        # 整理文章資訊
         data = PTTArticleItem()
         article_id = str(Path(urlparse(response.url).path).stem)
         data['url'] = response.url
@@ -164,8 +140,4 @@ class PttcrawlerSpider(scrapy.Spider):
         data['ip'] = ip
         data['message_count'] = message_count
         data['messages'] = messages
-
         yield data
-
-
-	
